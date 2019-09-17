@@ -79,7 +79,8 @@ class TwoLayerNet(object):
         # shape (N, C).                                                             #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+        mid_result = np.maximum(0,X.dot(W1) + b1.reshape(1,-1))
+        final_result =mid_result.dot(W2) + b2.reshape(1,-1)
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -97,7 +98,10 @@ class TwoLayerNet(object):
         # classifier loss.                                                          #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+        final_result -= np.max(final_result,axis=1).reshape(-1,1)
+        sum_per_case = np.sum(np.exp(final_result),axis=1)
+        softmax_output = np.exp(final_result)/sum_per_case.reshape(-1,1)
+        loss = -np.sum(np.log(softmax_output[range(N),list(y)]))/N + 0.5*reg*np.sum(W1*W1)+0.5*reg*np.sum(W2,W2)
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -110,7 +114,12 @@ class TwoLayerNet(object):
         # grads['W1'] should store the gradient on W1, and be a matrix of same size #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+        cp_softmax_output = softmax_output.copy()
+        cp_softmax_output[range(N),list(y)] -= 1
+        cp_softmax_output/=N
+        grads['W2'] = X.dot(cp_softmax_output) + reg * W2
+        grads['b2'] = np.sum(cp_softmax_output,axis=0)
+        tmp_v = 
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
