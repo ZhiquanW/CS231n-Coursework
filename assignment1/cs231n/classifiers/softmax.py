@@ -32,9 +32,22 @@ def softmax_loss_naive(W, X, y, reg):
     # regularization!                                                           #
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+    scores = X.dot(W)
+    scores -= np.max(scores,axis = 1).reshape(-1,1)
+    exp_scores = np.exp(scores)
+    sum_per_case = np.sum(exp_scores,axis=1)
+    # print(sum_per_case.shape)
+    softmax_scores = exp_scores/sum_per_case.reshape(-1,1)
+    softmax_scores_output = softmax_scores[range(X.shape[0]),list(y)]
+    # print(softmax_scores.shape)
+    # print(softmax_scores)
+    # print(sum_per_case)
+    loss = -np.sum(np.log(softmax_scores_output))/X.shape[0] + 0.5 * reg * np.sum(W*W)
     pass
-
+    p_mat = softmax_scores.copy()
+    p_mat[range(X.shape[0]),list(y)] -= 1
+    dW = (X.T).dot(p_mat)/X.shape[0] + reg * W
+    
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
     return loss, dW
@@ -57,7 +70,21 @@ def softmax_loss_vectorized(W, X, y, reg):
     # regularization!                                                           #
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+    scores = X.dot(W)
+    scores -= np.max(scores)
+    exp_scores = np.exp(scores)
+    sum_per_case = np.sum(exp_scores,axis=1)
+    # print(sum_per_case.shape)
+    softmax_scores = exp_scores/sum_per_case.reshape(-1,1)
+    softmax_scores_output = softmax_scores[range(X.shape[0]),list(y)]
+    # print(softmax_scores.shape)
+    # print(softmax_scores)
+    # print(sum_per_case)
+    loss = -np.sum(np.log(softmax_scores_output))/X.shape[0] + 0.5 * reg * np.sum(W*W)
+    pass
+    p_mat = softmax_scores.copy()
+    p_mat[range(X.shape[0]),list(y)] -= 1
+    dW = (X.T).dot(p_mat)/X.shape[0] + reg * W
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
