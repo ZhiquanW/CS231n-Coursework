@@ -48,7 +48,10 @@ class TwoLayerNet(object):
         # weights and biases using the keys 'W2' and 'b2'.                         #
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+        self.params['W1'] =  np.random.normal(0,weight_scale,(input_dim, hidden_dim))
+        self.params['W2'] = np.random.normal(0,weight_scale,(input_dim,hidden_dim))
+        self.params['b1'] = 0
+        self.params['b2'] = 0
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -92,6 +95,14 @@ class TwoLayerNet(object):
 
         # If y is None then we are in test mode so just return scores
         if y is None:
+            out0, _ = affine_forward(X, self.params['W1'], self.params['b1'])
+            print(out0.shape)
+            out1, _ = relu_forward(out0)
+            out2, _ = affine_forward(out1,self.params['W2'],self.params['b2'])
+            out3, _ = relu_forward(out2)
+            print(out3.shape)
+            print(out3)
+            scroes = out3
             return scores
 
         loss, grads = 0, {}
