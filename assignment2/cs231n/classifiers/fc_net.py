@@ -48,8 +48,10 @@ class TwoLayerNet(object):
         # weights and biases using the keys 'W2' and 'b2'.                         #
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-        self.params['W1'] =  np.random.normal(0,weight_scale,(input_dim, hidden_dim))
-        self.params['W2'] = np.random.normal(0,weight_scale,(input_dim,hidden_dim))
+        self.params['W1'] = np.random.normal(
+            0, weight_scale, (input_dim, hidden_dim))
+        self.params['W2'] = np.random.normal(
+            0, weight_scale, (input_dim, hidden_dim))
         self.params['b1'] = 0
         self.params['b2'] = 0
         pass
@@ -58,7 +60,6 @@ class TwoLayerNet(object):
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
-
 
     def loss(self, X, y=None):
         """
@@ -86,7 +87,10 @@ class TwoLayerNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        out0, cache0 = affine_forward(X, self.params['W1'], self.params['b1'])
+        out1, cache1 = relu_forward(out0)
+        out2, cache2 = affine_forward(out1, self.params['W2'], self.params['b2'])
+        scores = out2
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
@@ -95,14 +99,6 @@ class TwoLayerNet(object):
 
         # If y is None then we are in test mode so just return scores
         if y is None:
-            out0, _ = affine_forward(X, self.params['W1'], self.params['b1'])
-            print(out0.shape)
-            out1, _ = relu_forward(out0)
-            out2, _ = affine_forward(out1,self.params['W2'],self.params['b2'])
-            out3, _ = relu_forward(out2)
-            print(out3.shape)
-            print(out3)
-            scroes = out3
             return scores
 
         loss, grads = 0, {}
@@ -117,6 +113,16 @@ class TwoLayerNet(object):
         # of 0.5 to simplify the expression for the gradient.                      #
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        loss, dscores = softmax_loss(scores, y)
+        loss += (0.5 * self.reg * np.sum(self.params['W1'] * self.params['W1'])
+              + 0.5 * self.reg * np.sum(self.params['W2'] * self.params['W2']))
+        dx2, dw2, db2 = affine_backward(dscores,cache2)
+        dx1  = relu_backward(dx2,cache1)
+        dx0, dw0, db0 = affine_backward(dx1,cache0)
+        grads['W1'] = dw0 + self.reg * self.params['W1']
+        grads['b1'] = db0
+        grads['W2'] = dw2 + self.reg * self.params['W2']
+        grads['b2'] = db2
 
         pass
 
@@ -211,15 +217,15 @@ class FullyConnectedNet(object):
         # of the first batch normalization layer, self.bn_params[1] to the forward
         # pass of the second batch normalization layer, etc.
         self.bn_params = []
-        if self.normalization=='batchnorm':
-            self.bn_params = [{'mode': 'train'} for i in range(self.num_layers - 1)]
-        if self.normalization=='layernorm':
+        if self.normalization == 'batchnorm':
+            self.bn_params = [{'mode': 'train'}
+                              for i in range(self.num_layers - 1)]
+        if self.normalization == 'layernorm':
             self.bn_params = [{} for i in range(self.num_layers - 1)]
 
         # Cast all parameters to the correct datatype
         for k, v in self.params.items():
             self.params[k] = v.astype(dtype)
-
 
     def loss(self, X, y=None):
         """
@@ -234,7 +240,7 @@ class FullyConnectedNet(object):
         # behave differently during training and testing.
         if self.use_dropout:
             self.dropout_param['mode'] = mode
-        if self.normalization=='batchnorm':
+        if self.normalization == 'batchnorm':
             for bn_param in self.bn_params:
                 bn_param['mode'] = mode
         scores = None

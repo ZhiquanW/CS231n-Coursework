@@ -64,9 +64,6 @@ def affine_backward(dout, cache):
     tmp_x = x.reshape(len(x),-1)
     dw = np.dot(tmp_x.T,dout)
     db = np.sum(dout,axis=0)
-    print(dx.shape)
-    print(dw.shape)
-    print(db.shape)
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
