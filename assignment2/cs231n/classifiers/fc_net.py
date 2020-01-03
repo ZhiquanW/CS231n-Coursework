@@ -89,7 +89,8 @@ class TwoLayerNet(object):
 
         out0, cache0 = affine_forward(X, self.params['W1'], self.params['b1'])
         out1, cache1 = relu_forward(out0)
-        out2, cache2 = affine_forward(out1, self.params['W2'], self.params['b2'])
+        out2, cache2 = affine_forward(
+            out1, self.params['W2'], self.params['b2'])
         scores = out2
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -115,10 +116,10 @@ class TwoLayerNet(object):
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         loss, dscores = softmax_loss(scores, y)
         loss += (0.5 * self.reg * np.sum(self.params['W1'] * self.params['W1'])
-              + 0.5 * self.reg * np.sum(self.params['W2'] * self.params['W2']))
-        dx2, dw2, db2 = affine_backward(dscores,cache2)
-        dx1  = relu_backward(dx2,cache1)
-        dx0, dw0, db0 = affine_backward(dx1,cache0)
+                 + 0.5 * self.reg * np.sum(self.params['W2'] * self.params['W2']))
+        dx2, dw2, db2 = affine_backward(dscores, cache2)
+        dx1 = relu_backward(dx2, cache1)
+        dx0, dw0, db0 = affine_backward(dx1, cache0)
         grads['W1'] = dw0 + self.reg * self.params['W1']
         grads['b1'] = db0
         grads['W2'] = dw2 + self.reg * self.params['W2']
@@ -194,7 +195,21 @@ class FullyConnectedNet(object):
         # parameters should be initialized to zeros.                               #
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+        # self.params['W1'] = np.random.normal(
+        # 0, weight_scale, (input_dim, hidden_dims))
+        # self.params['b1'] = 0
+        layer_input_dim = input_dim
+        for i, element in enumerate(hidden_dims):
+            self.params['W'+str(i)] = np.random.normal(0,
+                                                       weight_scale, (layer_input_dim, element))
+            self.params['b'+str(i)] = 0
+            if normalization == 'batchnorm':
+                self.params['gamma'+str(i)] = np.ones(element)
+                self.params['beta'+str(i)] = np.zeros(element)
+            layer_input_dim = element
+        self.params['W'+str(self.num_layers)] = np.random.normal(0,
+                                                                 weight_scale, (layer_input_dim, num_classes))
+        self.params['b'+str(self.num_layers)] = 0
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
