@@ -207,8 +207,7 @@ class FullyConnectedNet(object):
                 self.params['gamma'+str(i)] = np.ones(element)
                 self.params['beta'+str(i)] = np.zeros(element)
             layer_input_dim = element
-        self.params['W'+str(self.num_layers)] = np.random.normal(0,
-                                                                 weight_scale, (layer_input_dim, num_classes))
+        self.params['W'+str(self.num_layers)] = np.random.normal(0,                                                       weight_scale, (layer_input_dim, num_classes))
         self.params['b'+str(self.num_layers)] = 0
         pass
 
