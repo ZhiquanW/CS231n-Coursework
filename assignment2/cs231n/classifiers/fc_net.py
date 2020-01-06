@@ -271,7 +271,17 @@ class FullyConnectedNet(object):
         # layer, etc.                                                              #
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+            
+        out_list = []
+        cache_list = []
+        for i in range(self.num_layers):
+            tmp_out = affine_forward(X,self.params['W'+str(i),self.params['b'+str(i)]
+                                                   
+        out0, cache0 = affine_forward(X, self.params['W1'], self.params['b1'])
+        out1, cache1 = relu_forward(out0)
+        out2, cache2 = affine_forward(
+            out1, self.params['W2'], self.params['b2'])
+        scores = out2
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
