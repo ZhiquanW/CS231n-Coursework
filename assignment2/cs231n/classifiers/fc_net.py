@@ -207,7 +207,8 @@ class FullyConnectedNet(object):
                 self.params['gamma'+str(i)] = np.ones(element)
                 self.params['beta'+str(i)] = np.zeros(element)
             layer_input_dim = element
-        self.params['W'+str(self.num_layers)] = np.random.normal(0,                                                       weight_scale, (layer_input_dim, num_classes))
+        self.params['W'+str(self.num_layers)] = np.random.normal(0,
+                            weight_scale, (layer_input_dim, num_classes))
         self.params['b'+str(self.num_layers)] = 0
         pass
 
@@ -271,17 +272,16 @@ class FullyConnectedNet(object):
         # layer, etc.                                                              #
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-            
+
         out_list = []
         cache_list = []
         for i in range(self.num_layers):
-            tmp_out = affine_forward(X,self.params['W'+str(i),self.params['b'+str(i)]
-                                                   
-        out0, cache0 = affine_forward(X, self.params['W1'], self.params['b1'])
-        out1, cache1 = relu_forward(out0)
-        out2, cache2 = affine_forward(
+            tmp_out = affine_forward(X, self.params['W'+str(i), self.params['b'+str(i)]
+        out0, cache0=affine_forward(X, self.params['W1'], self.params['b1'])
+        out1, cache1=relu_forward(out0)
+        out2, cache2=affine_forward(
             out1, self.params['W2'], self.params['b2'])
-        scores = out2
+        scores=out2
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -293,7 +293,7 @@ class FullyConnectedNet(object):
         if mode == 'test':
             return scores
 
-        loss, grads = 0.0, {}
+        loss, grads=0.0, {}
         ############################################################################
         # TODO: Implement the backward pass for the fully-connected net. Store the #
         # loss in the loss variable and gradients in the grads dictionary. Compute #
