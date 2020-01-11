@@ -181,7 +181,6 @@ class FullyConnectedNet(object):
         self.num_layers = 1 + len(hidden_dims)
         self.dtype = dtype
         self.params = {}
-
         ############################################################################
         # TODO: Initialize the parameters of the network, storing all values in    #
         # the self.params dictionary. Store weights and biases for the first layer #
@@ -202,14 +201,14 @@ class FullyConnectedNet(object):
         for i, element in enumerate(hidden_dims):
             self.params['W'+str(i)] = np.random.normal(0,
                                                        weight_scale, (layer_input_dim, element))
-            self.params['b'+str(i)] = 0
+            self.params['b'+str(i)] = np.zeros(element)
             if normalization == 'batchnorm':
                 self.params['gamma'+str(i)] = np.ones(element)
                 self.params['beta'+str(i)] = np.zeros(element)
             layer_input_dim = element
-        self.params['W'+str(self.num_layers)] = np.random.normal(0,
+        self.params['W'+str(self.num_layers-1)] = np.random.normal(0,
                             weight_scale, (layer_input_dim, num_classes))
-        self.params['b'+str(self.num_layers)] = 0
+        self.params['b'+str(self.num_layers-1)] = np.zeros(num_classes)
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -275,13 +274,15 @@ class FullyConnectedNet(object):
 
         out_list = []
         cache_list = []
+        layer_in = X
         for i in range(self.num_layers):
-            tmp_out = affine_forward(X, self.params['W'+str(i), self.params['b'+str(i)]
-        out0, cache0=affine_forward(X, self.params['W1'], self.params['b1'])
-        out1, cache1=relu_forward(out0)
-        out2, cache2=affine_forward(
-            out1, self.params['W2'], self.params['b2'])
-        scores=out2
+            tmp_out,tmp_cache = affine_relu_forward(layer_in, self.params['W'+str(i)], self.params['b'+str(i)])
+            if self.use_dropout:
+                
+            layer_in = tmp_out
+            out_list.append(tmp_out)
+            cache_list.append(tmp_cache)
+        scores = tmp_out
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -308,6 +309,14 @@ class FullyConnectedNet(object):
         # of 0.5 to simplify the expression for the gradient.                      #
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        loss,dout = softmax_loss(scores,y) 
+        loss += np.sum([0.5*self.reg*np.sum(self.params['W'+str(i)]*self.params['W'+str(i)]) for i in range(self.num_layers)])
+        for i in range(self.num_layers):
+            index = self.num_layers-i-1
+            dx,dw,db = affine_relu_backward(dout,cache_list[index])
+            grads['W'+str(index)] = dw + self.reg * self.params['W'+str(index)]
+            grads['b'+str(index)] = db
+            dout = dx
 
         pass
 
