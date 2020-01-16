@@ -278,7 +278,7 @@ class FullyConnectedNet(object):
         for i in range(self.num_layers):
             tmp_out,tmp_cache = affine_relu_forward(layer_in, self.params['W'+str(i)], self.params['b'+str(i)])
             if self.use_dropout:
-                
+                pass
             layer_in = tmp_out
             out_list.append(tmp_out)
             cache_list.append(tmp_cache)
