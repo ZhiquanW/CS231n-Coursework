@@ -68,9 +68,10 @@ def sgd_momentum(w, dw, config=None):
     # the next_w variable. You should also use and update the velocity v.     #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-    v = config['momentum'] * v - config['learning_rate'] * dw
+    v = config['momentum'] * v -config['learning_rate'] *dw
     w += v
     next_w = w
+
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -164,10 +165,9 @@ def adam(w, dw, config=None):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     config['t'] += 1
-    config['m'] = config['beta1']*config['m'] + (1-config['beta1']) * dw
-    config['v'] = config['beta2']*config['v'] + (1-config['beta2']) * (dw**2)
-    w += config['learning_rate']*config['m'] / \
-        (np.sqrt(config['v'])+config['epsilon'])
+    config['m'] = (config['beta1']*config['m'] + (1-config['beta1']) * dw)
+    config['v'] = (config['beta2']*config['v'] + (1-config['beta2']) * (dw**2))
+    w -= config['learning_rate']*config['m']/(1-config['beta1']**config['t']) / (np.sqrt(config['v']/(1-config['beta2']**config['t']))+config['epsilon'])
     next_w = w
     pass
 
