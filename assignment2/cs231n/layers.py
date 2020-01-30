@@ -198,13 +198,11 @@ def batchnorm_forward(x, gamma, beta, bn_param):
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         sample_mean = x.mean(axis=0)
         sample_variance = x.var(axis=0)
-        x_hat = (x - sample_mean) / \
-            np.sqrt(sample_variance+eps)
+        x_hat = (x - sample_mean) / np.sqrt(sample_variance+eps)
         running_mean = momentum * running_mean + (1-momentum) * sample_mean
-        running_var = momentum * running_var + \
-            (1-momentum) * sample_variance
+        running_var = momentum * running_var +  (1-momentum) * sample_variance
         out = gamma * x_hat + beta
-        pass
+        cache = x,x_hat,gamma,beta,sample_mean,sample_variance,eps
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         #######################################################################
@@ -221,8 +219,6 @@ def batchnorm_forward(x, gamma, beta, bn_param):
         x_hat = (x - bn_param['running_mean']) / \
             np.sqrt(bn_param['running_var'] + eps)
         out = gamma * x_hat + beta
-        pass
-
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         #######################################################################
         #                          END OF YOUR CODE                           #
@@ -262,6 +258,14 @@ def batchnorm_backward(dout, cache):
     # might prove to be helpful.                                              #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    m,d = dout.shape
+    x,x_hat,gamma,beta,sample_mean,sample_variance,eps = cache
+    dbeta = np.sum(dout,axis=0)
+    dgamma = np.sum(dout*x_hat,axis=0)
+    d_xhat = gamma * dout
+    d_variance = np.sum(d_xhat * -0.5*(x-sample_mean)*(sample_variance+eps)**(-1.5),axis=0)
+    d_mean = np.sum(d_xhat * -(sample_variance+eps)**(-0.5),axis=0)
+    dx = d_xhat * (sample_variance+eps)**(-0.5) + d_variance * (2.0/m)*(x-sample_mean) + d_mean/m
 
     pass
 
@@ -297,7 +301,14 @@ def batchnorm_backward_alt(dout, cache):
     # single statement; our implementation fits on a single 80-character line.#
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+    m,d = dout.shape
+    x,x_hat,gamma,beta,sample_mean,sample_variance,eps = cache
+    dbeta = np.sum(dout,axis=0)
+    dgamma = np.sum(dout*x_hat,axis=0)
+    d_xhat = gamma * dout
+    d_variance = np.sum(d_xhat * -0.5*(x-sample_mean)*(sample_variance+eps)**(-1.5),axis=0)
+    d_mean = np.sum(d_xhat * -(sample_variance+eps)**(-0.5),axis=0)
+    dx = d_xhat * (sample_variance+eps)**(-0.5) + d_variance * (2.0/m)*(x-sample_mean) + d_mean/m
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
