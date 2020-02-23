@@ -42,7 +42,7 @@ def affine_bn_relu_backward(dout, cache):
     d_bn = relu_backward(dout, relu_cache)
     d_affine, dgamma, dbeta = batchnorm_backward(d_bn, bn_cache)
     dx, dw, db = affine_backward(d_affine, affine_cache)
-    return dx, dw, db
+    return dx, dw, db, dgamma, dbeta
 
 
 def conv_relu_forward(x, w, b, conv_param):

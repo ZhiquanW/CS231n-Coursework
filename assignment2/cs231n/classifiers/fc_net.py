@@ -341,7 +341,9 @@ class FullyConnectedNet(object):
         for i in range(self.num_layers-1):
             index = self.num_layers-i-2
             if self.normalization == 'batchnorm':
-                dx, dw, db = affine_bn_relu_backward(dout, cache_list[index])
+                dx, dw, db, dgamma, dbeta = affine_bn_relu_backward(dout, cache_list[index])
+                grads['gamma'+str(index)] = dgamma
+                grads['beta'+str(index)] = dbeta
             else:
                 dx, dw, db = affine_relu_backward(dout, cache_list[index])
             grads['W'+str(index)] = dw + self.reg * self.params['W'+str(index)]

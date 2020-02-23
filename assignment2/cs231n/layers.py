@@ -200,9 +200,9 @@ def batchnorm_forward(x, gamma, beta, bn_param):
         sample_variance = x.var(axis=0)
         x_hat = (x - sample_mean) / np.sqrt(sample_variance+eps)
         running_mean = momentum * running_mean + (1-momentum) * sample_mean
-        running_var = momentum * running_var +  (1-momentum) * sample_variance
+        running_var = momentum * running_var + (1-momentum) * sample_variance
         out = gamma * x_hat + beta
-        cache = x,x_hat,gamma,beta,sample_mean,sample_variance,eps
+        cache = x, x_hat, gamma, beta, sample_mean, sample_variance, eps
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         #######################################################################
@@ -258,14 +258,16 @@ def batchnorm_backward(dout, cache):
     # might prove to be helpful.                                              #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-    m,d = dout.shape
-    x,x_hat,gamma,beta,sample_mean,sample_variance,eps = cache
-    dbeta = np.sum(dout,axis=0)
-    dgamma = np.sum(dout*x_hat,axis=0)
+    m, d = dout.shape
+    x, x_hat, gamma, beta, sample_mean, sample_variance, eps = cache
+    dbeta = np.sum(dout, axis=0)
+    dgamma = np.sum(dout*x_hat, axis=0)
     d_xhat = gamma * dout
-    d_variance = np.sum(d_xhat * -0.5*(x-sample_mean)*(sample_variance+eps)**(-1.5),axis=0)
-    d_mean = np.sum(d_xhat * -(sample_variance+eps)**(-0.5),axis=0)
-    dx = d_xhat * (sample_variance+eps)**(-0.5) + d_variance * (2.0/m)*(x-sample_mean) + d_mean/m
+    d_variance = np.sum(d_xhat * -0.5*(x-sample_mean) *
+                        (sample_variance+eps)**(-1.5), axis=0)
+    d_mean = np.sum(d_xhat * -(sample_variance+eps)**(-0.5), axis=0)
+    dx = d_xhat * (sample_variance+eps)**(-0.5) + d_variance * \
+        (2.0/m)*(x-sample_mean) + d_mean/m
 
     pass
 
@@ -301,14 +303,16 @@ def batchnorm_backward_alt(dout, cache):
     # single statement; our implementation fits on a single 80-character line.#
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-    m,d = dout.shape
-    x,x_hat,gamma,beta,sample_mean,sample_variance,eps = cache
-    dbeta = np.sum(dout,axis=0)
-    dgamma = np.sum(dout*x_hat,axis=0)
+    m, d = dout.shape
+    x, x_hat, gamma, beta, sample_mean, sample_variance, eps = cache
+    dbeta = np.sum(dout, axis=0)
+    dgamma = np.sum(dout*x_hat, axis=0)
     d_xhat = gamma * dout
-    d_variance = np.sum(d_xhat * -0.5*(x-sample_mean)*(sample_variance+eps)**(-1.5),axis=0)
-    d_mean = np.sum(d_xhat * -(sample_variance+eps)**(-0.5),axis=0)
-    dx = d_xhat * (sample_variance+eps)**(-0.5) + d_variance * (2.0/m)*(x-sample_mean) + d_mean/m
+    d_variance = np.sum(d_xhat * -0.5*(x-sample_mean) *
+                        (sample_variance+eps)**(-1.5), axis=0)
+    d_mean = np.sum(d_xhat * -(sample_variance+eps)**(-0.5), axis=0)
+    dx = d_xhat * (sample_variance+eps)**(-0.5) + d_variance * \
+        (2.0/m)*(x-sample_mean) + d_mean/m
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -354,7 +358,12 @@ def layernorm_forward(x, gamma, beta, ln_param):
     # the batch norm code and leave it almost unchanged?                      #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+    N, D = x.shape
+    mean_x = np.mean(x, axis=1)
+    var_x = np.var(x, axis=1)
+    x_hat = ((x.T - mean_x) / np.sqrt(var_x+eps)).T
+    out = x_hat * gamma + beta
+    cache = x, mean_x, var_x, x_hat, gamma, beta, eps
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -381,6 +390,7 @@ def layernorm_backward(dout, cache):
     - dbeta: Gradient with respect to shift parameter beta, of shape (D,)
     """
     dx, dgamma, dbeta = None, None, None
+    N, D = dout.shape
     ###########################################################################
     # TODO: Implement the backward pass for layer norm.                       #
     #                                                                         #
@@ -389,8 +399,15 @@ def layernorm_backward(dout, cache):
     # still apply!                                                            #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-    pass
+    x, mean_x, var_x, x_hat, gamma, beta, eps = cache
+    dgamma = np.sum(dout*x_hat, axis=0)
+    dbeta = np.sum(dout, axis=0)
+    d_xhat = dout * gamma
+    d_variance = np.sum(d_xhat.T * -0.5 * (x.T-mean_x)
+                        * (var_x+eps)**-1.5, axis=0)
+    d_mean = np.sum(d_xhat.T * -(var_x+eps)**(-0.5), axis=0)
+    dx = (d_xhat.T * (var_x+eps)**(-0.5) +
+          d_variance * (2.0/D)*(x.T-mean_x) + d_mean/D).T
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -438,7 +455,8 @@ def dropout_forward(x, dropout_param):
         # Store the dropout mask in the mask variable.                        #
         #######################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+        mask = (np.random.rand(*x.shape) < p)/p
+        out = x * mask
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -451,8 +469,8 @@ def dropout_forward(x, dropout_param):
         #######################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
-
+        out = x
+        cache = None
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         #######################################################################
         #                            END OF YOUR CODE                         #
@@ -481,7 +499,7 @@ def dropout_backward(dout, cache):
         # TODO: Implement training phase backward pass for inverted dropout   #
         #######################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+        dx = dout * mask
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -527,8 +545,22 @@ def conv_forward_naive(x, w, b, conv_param):
     # Hint: you can use the function np.pad for padding.                      #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    N, C, H, W = x.shape
+    F, C, HH, WW = w.shape
+    H_out = int(1 + (H + 2 * conv_param['pad'] - HH)/conv_param['stride'])
+    W_out = int(1 + (W + 2 * conv_param['pad'] - WW)/conv_param['stride'])
+    out = np.zeros((N, F, H_out, W_out))
+    x_pad = np.pad(
+        x, ((0,), (0,), (conv_param['pad'],), (conv_param['pad'],)), 'constant', constant_values=0)
+    for i in range(H_out):
+        for j in range(W_out):
+            x_conv_mat = x_pad[:, :, i*conv_param['stride']:i*conv_param['stride'] +
+                               HH, j*conv_param['stride']:j*conv_param['stride']+WW]
+            for f in range(F):
+                out[:, f, i, j] = np.sum(
+                    x_conv_mat * w[f, :, :, :], axis=(1, 2, 3))
 
-    pass
+    out += b[None, :, None, None]
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -556,13 +588,39 @@ def conv_backward_naive(dout, cache):
     # TODO: Implement the convolutional backward pass.                        #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    x, w, b, conv_param = cache
+    N, C, H, W = x.shape
+    F, _, HH, WW = w.shape
+    H_out = int(1 + (H + 2 * conv_param['pad'] - HH)/conv_param['stride'])
+    W_out = int(1 + (W + 2 * conv_param['pad'] - WW)/conv_param['stride'])
+    x_pad = np.pad(
+        x, ((0,), (0,), (conv_param['pad'],), (conv_param['pad'],)), 'constant', constant_values=0)
 
-    pass
-
-    # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-    ###########################################################################
-    #                             END OF YOUR CODE                            #
-    ###########################################################################
+    dx = np.zeros_like(x)
+    dx_pad = np.zeros_like(x_pad)
+    dw = np.zeros_like(w)
+    db = np.zeros_like(b)
+    for n in range(N):
+        for f in range(F):
+            db[f] += np.sum(dout[n, f])
+            for h_out in range(H_out):
+                for w_out in range(W_out):
+                    dw[f, :, :, :] += dout[n, f, h_out, w_out] * \
+                        x_pad[n, :, h_out*conv_param['stride']:h_out*conv_param['stride'] +
+                              HH, w_out*conv_param['stride']:w_out*conv_param['stride']+WW]
+                    dx_pad[n, :, h_out*conv_param['stride']:h_out*conv_param['stride'] +
+                           HH, w_out*conv_param['stride']:w_out*conv_param['stride']+WW] += dout[n, f, h_out, w_out] * w[f, :, :, :]
+                    # for i in range(H_out):
+                    #   for j in range(W_out):
+                    #     tmp = x_pad[:, :, i*conv_param['stride']+HH, j*conv_param['stride']+WW]
+                    #     for f in F:
+                    #       dw[f, :, :, :] = np.sum(tmp * dout[:, f, i, j]), axis = 0)
+                    # # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+                    ###########################################################################
+                    #                             END OF YOUR CODE                            #
+                    ###########################################################################
+    dx = dx_pad[:, :, conv_param['pad']:conv_param['pad'] +
+                H, conv_param['pad']:conv_param['pad']+W]
     return dx, dw, db
 
 

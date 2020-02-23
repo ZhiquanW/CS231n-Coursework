@@ -166,7 +166,7 @@ class Solver(object):
     def _step(self):
         """
         Make a single gradient update. This is called by train() and should not
-        be called manually.
+        be called manually.c 
         """
         # Make a minibatch of training data
         num_train = self.X_train.shape[0]
